@@ -1,0 +1,49 @@
+name: Render ePaper calendar
+ 
+on:
+  schedule:
+    # 매일 한국시간 새벽 3시 (UTC 18:00). GitHub cron은 수십 분 늦을 수 있습니다.
+    - cron: '0 18 * * *'
+  workflow_dispatch:        # Actions 탭에서 수동 실행
+ 
+permissions:
+  contents: write
+ 
+concurrency:
+  group: render
+  cancel-in-progress: false
+ 
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+ 
+      - name: 한글 폰트 설치
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq fonts-nanum
+ 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+ 
+      - name: 의존성 설치
+        run: pip install -q -r requirements.txt
+ 
+      - name: 이미지 렌더링
+        env:
+          ICAL_URL: ${{ secrets.ICAL_URL }}
+          LAYOUT:   ${{ vars.LAYOUT || 'bars' }}
+          LAT:      ${{ vars.LAT   || '37.5256' }}
+          LON:      ${{ vars.LON   || '126.9317' }}
+          PLACE:    ${{ vars.PLACE || '서울' }}
+          TZ_NAME:  'Asia/Seoul'
+        run: python render.py
+ 
+      - name: 결과 커밋
+        run: |
+          git config user.name  "github-actions"
+          git config user.email "actions@github.com"
+          git add -f out/cal.bin out/cal.png
+          git diff --staged --quiet || git commit -m "render $(date -u +%Y-%m-%dT%H:%MZ)"
+          git push
+ 
