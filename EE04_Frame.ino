@@ -165,20 +165,26 @@ static String photoAt(int idx) {
 static bool fetchCalendar() {
   if (!wifiUp()) return false;
 
-  WiFiClientSecure* tls = new WiFiClientSecure;
+  // HTTPClient는 소멸될 때 begin()에 넘긴 클라이언트의 stop()을 다시
+  // 호출할 수 있습니다. TLS 객체를 먼저 delete하면 갱신 직후
+  // HTTPClient 소멸자에서 해제된 메모리를 참조해 재부팅됩니다.
+  // tls를 http보다 먼저 선언하면 역순 소멸되어 http가 안전하게 끝난 뒤
+  // tls가 정리됩니다.
+  WiFiClientSecure tls;
   // 인증서 검증을 생략합니다. 받는 것이 공개 이미지뿐이라 위험이 낮지만,
   // 엄격하게 하려면 GitHub 루트 CA를 setCACert()로 넣으세요.
-  tls->setInsecure();
+  tls.setInsecure();
 
   HTTPClient http;
   http.setTimeout(25000);
-  if (!http.begin(*tls, CAL_URL)) { delete tls; return false; }
+  if (!http.begin(tls, CAL_URL)) return false;
   if (strlen(GH_TOKEN) > 0) http.addHeader("Authorization", String("Bearer ") + GH_TOKEN);
 
   const int code = http.GET();
   if (code != HTTP_CODE_OK) {
     Serial.printf("[cal] HTTP %d\n", code);
-    http.end(); delete tls; return false;
+    http.end();
+    return false;
   }
 
   WiFiClient* s = http.getStreamPtr();
@@ -192,7 +198,7 @@ static bool fetchCalendar() {
     } else if (millis() - last > 12000) break;
     else delay(5);
   }
-  http.end(); delete tls;
+  http.end();
 
   if (got != frameSize) {
     Serial.printf("[cal] 수신 부족 %u/%u\n", (unsigned)got, (unsigned)frameSize);

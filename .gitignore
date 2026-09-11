@@ -5,6 +5,7 @@
 .build_verify_out/
 .build_verify_cdc/
 .build_verify_cdc_out/
+.build_fix/
 build/
 out/
 /calendar/
