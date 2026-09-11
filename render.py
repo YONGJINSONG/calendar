@@ -6,8 +6,8 @@ GitHub Actions에서 하루 한 번 실행되어 out/cal.bin 과 out/cal.png 를
 
 환경변수:
     ICAL_URL   구글 캘린더 비공개 iCal 주소 (없으면 샘플 일정으로 렌더링)
-    LAT, LON   날씨 좌표 (기본: 서울 37.5665, 126.9780)
-    PLACE      화면에 표시할 지역 이름 (기본: 서울)
+    LAT, LON   날씨 좌표 (기본: 서울 37.52493718404563, 126.93209650151725)
+    PLACE      화면에 표시할 지역 이름 (기본: 서울 여의도)
     TZ_NAME    시간대 (기본: Asia/Seoul)
 """
 
@@ -21,9 +21,9 @@ from PIL import Image, ImageDraw, ImageFont
 W, H = 800, 480
 TZ = zoneinfo.ZoneInfo(os.environ.get("TZ_NAME", "Asia/Seoul"))
 ICAL_URL = os.environ.get("ICAL_URL", "").strip()
-LAT = float(os.environ.get("LAT", "37.5665"))
-LON = float(os.environ.get("LON", "126.9780"))
-PLACE = os.environ.get("PLACE", "서울")
+LAT = float(os.environ.get("LAT", "37.52493718404563"))
+LON = float(os.environ.get("LON", "126.93209650151725"))
+PLACE = os.environ.get("PLACE", "서울 여의도")
 DAYS_AHEAD = 14
 MAX_EVENTS = 6
 
