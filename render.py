@@ -38,6 +38,7 @@ E6 = [
 
 WHITE, BLACK = (255, 255, 255), (0, 0, 0)
 RED, BLUE, YELLOW, GREEN = (255, 0, 0), (0, 0, 255), (255, 255, 0), (0, 255, 0)
+TODAY_HIGHLIGHT = (240, 240, 255)
 
 WEEKDAY_KO = ["월", "화", "수", "목", "금", "토", "일"]
 
@@ -435,7 +436,7 @@ def render_month(by_date, wx):
             other = day.month != today.month
 
             if day == today:
-                d.rectangle([x0 + 1, y0 + 1, x0 + cw - 1, y0 + ch - 1], fill=YELLOW)
+                d.rectangle([x0 + 1, y0 + 1, x0 + cw - 1, y0 + ch - 1], fill=TODAY_HIGHLIGHT)
 
             if other:
                 num_col = BLACK           # 다른 달은 작게, 색 강조 없이
@@ -548,7 +549,7 @@ def render_weeks(by_date, wx, weeks=2):
             x0, y0 = left + cw * c, top + ch * r
 
             if day == today:
-                d.rectangle([x0 + 1, y0 + 1, x0 + cw - 1, y0 + ch - 1], fill=YELLOW)
+                d.rectangle([x0 + 1, y0 + 1, x0 + cw - 1, y0 + ch - 1], fill=TODAY_HIGHLIGHT)
 
             num_col = RED if c == 6 else (BLUE if c == 5 else BLACK)
             label = f"{day.month}/{day.day}" if day.day == 1 else str(day.day)
@@ -676,7 +677,7 @@ def render_bars(events, wx, weeks=3):
         if wk0 <= today <= wk1:
             c = (today - wk0).days
             d.rectangle([left + cw * c + 1, y0 + 1, left + cw * (c + 1) - 1, y0 + ch - 1],
-                        fill=YELLOW)
+                        fill=TODAY_HIGHLIGHT)
 
         # 날짜 번호 (오른쪽 정렬)
         for c in range(7):
